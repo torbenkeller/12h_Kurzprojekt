@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:kurzprojekt/about_us/about_us_page.dart';
+import 'package:kurzprojekt/buisness_logic/favourite_entry.dart';
+import 'package:kurzprojekt/buisness_logic/favourite_notifier.dart';
 import 'package:kurzprojekt/favourites/favourites_page.dart';
 import 'package:kurzprojekt/home/home_page.dart';
+import 'package:kurzprojekt/services/cache_service.dart';
+import 'package:provider/provider.dart';
 
 main() => runApp(MainApp());
 
@@ -10,9 +14,22 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Kurzprojekt',
-      onGenerateRoute: (RouteSettings settings) {
-        return MaterialPageRoute(builder: (_) => RootPage());
-      },
+      home: FutureBuilder<Map<int, FavouriteEntry>>(
+          future: CacheService.getInstance().loadFavourites(),
+          builder: (BuildContext context,
+              AsyncSnapshot<Map<int, FavouriteEntry>> snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.done:
+                return ChangeNotifierProvider.value(
+                  child: RootPage(),
+                  value: FavouriteNotifier(snapshot.data),
+                );
+              default:
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+            }
+          }),
     );
   }
 }

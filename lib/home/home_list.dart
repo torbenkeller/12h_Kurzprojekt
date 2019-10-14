@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kurzprojekt/buisness_logic/favourite_entry.dart';
+import 'package:kurzprojekt/buisness_logic/favourite_notifier.dart';
 import 'package:kurzprojekt/buisness_logic/game.dart';
 import 'package:kurzprojekt/services/games_service.dart';
+import 'package:provider/provider.dart';
 
 class HomeList extends StatefulWidget {
   final List<Game> data;
@@ -55,22 +58,41 @@ class _HomeListState extends State<HomeList> {
                 child: CircularProgressIndicator(),
               ),
             );
-          return ListTile(
-            leading: CircleAvatar(
-              child: Text(
-                widget.data[index].totalRating.toInt().toString(),
+          return Consumer<FavouriteNotifier>(
+              builder: (BuildContext context, FavouriteNotifier favourites, _) {
+            return ListTile(
+              leading: CircleAvatar(
+                child: Text(
+                  widget.data[index].totalRating.toInt().toString(),
+                ),
+                backgroundColor: Color.fromARGB(
+                    255,
+                    ((100 - widget.data[index].totalRating).abs() * 2.55)
+                        .toInt(),
+                    ((widget.data[index].totalRating).abs() * 2.55).toInt(),
+                    0),
               ),
-              backgroundColor: Color.fromARGB(
-                  255,
-                  ((100 - widget.data[index].totalRating).abs() * 2.55).toInt(),
-                  ((widget.data[index].totalRating).abs() * 2.55).toInt(),
-                  0),
-            ),
-            title: Text(widget.data[index].name),
-            subtitle: (widget.data[index].genres.length > 0)
-                ? Text(widget.data[index].genres.reduce((a, b) => a + ', ' + b))
-                : null,
-          );
+              title: Text(widget.data[index].name),
+              subtitle: (widget.data[index].genres.length > 0)
+                  ? Text(
+                      widget.data[index].genres.reduce((a, b) => a + ', ' + b))
+                  : null,
+              trailing: IconButton(
+                icon: Icon((favourites.entries[widget.data[index].id] != null)
+                    ? Icons.star
+                    : Icons.star_border),
+                onPressed: () {
+                  if (favourites.entries[widget.data[index].id] != null) {
+                    favourites.remove(widget.data[index].id);
+                  } else {
+                    favourites.add(FavouriteEntry(
+                        lastChangedDate: DateTime.now(),
+                        gameID: widget.data[index].id));
+                  }
+                },
+              ),
+            );
+          });
         },
         itemCount: widget.data.length + ((widget.data.length < 150) ? 1 : 0),
       ),
