@@ -16,6 +16,7 @@ class GamesService {
   static GamesService _gamesService;
 
   Map<int, String> _genreNames = <int, String>{};
+  Map<int, Game> _gameCache = <int, Game>{};
 
   static GamesService getInstance() {
     if (_gamesService != null) return _gamesService;
@@ -58,10 +59,7 @@ class GamesService {
           ' offset $start;',
     );
     List<Game> games = <Game>[];
-//    String a =
-//        '[{"id": 13271,"genres":[5,33],"name": "3D Starstrike","total_rating": 100.0},{"id": 23230,"name": "Playworld Superheroes","total_rating": 100.0},{"id": 5024,"genres": [8],"name": "The Munchables","total_rating": 100.0},{"id": 23746,"genres": [12],"name": "EverQuest: Evolution","total_rating": 100.0},{"id": 23809,"genres": [10],"name": "Motor City Online","total_rating": 100.0},{"id": 1458,"genres": [31],"name": "Ōkamiden","total_rating": 100.0},{"id": 9150,"genres": [4,14],"name": "Punch-Out!!","total_rating": 100.0},{"id": 23227,"name": "After Burner II 3D","total_rating": 100.0},{"id": 21639,"name": "Challenge Me: Math Workout","total_rating": 100.0},{"id": 23754,"name": "Tony Hawk\u0027s Pro Skater 4 Street","total_rating": 100.0},{"id": 23743,"genres": [31],"name": "Journey to Wild Divine","total_rating": 100.0},{"id": 804,"genres": [10,13,14],"name": "NASCAR Racing 2003 Season","total_rating": 100.0},{"id": 20921,"name": "Interwebs Troll Simulator","total_rating": 100.0},{"id": 657,"genres": [12],"name": "Dark Age of Camelot","total_rating": 100.0},{"id": 712,"genres": [13],"name": "Microsoft Flight Simulator 2004: A Century of Flight","total_rating": 100.0},{"id": 9186,"genres": [5],"name": "Robotron X","total_rating": 100.0},{"id": 24250,"genres": [11,13,15],"name": "SuperPower 2","total_rating": 100.0},{"id": 20860,"genres": [5,12],"name": "Destiny Legendary Edition","total_rating": 100.0},{"id": 21896,"name": "GTDUPEA V Remastered","total_rating": 100.0},{"id": 10250,"genres": [9],"name": "Droplitz","total_rating": 100.0}]';
     List<dynamic> jsonGames = jsonDecode(response.body.toString());
-//    List<dynamic> jsonGames = jsonDecode(a);
     for (Map<String, dynamic> game in jsonGames) {
       List<String> genres = <String>[];
       if (game['genres'] != null) {
@@ -70,12 +68,36 @@ class GamesService {
           genres.add(await getGenreName(id: genreID));
         }
       }
-      games.add(Game.fromJson(game, genres));
+      Game modelGame = Game.fromJson(game, genres);
+      games.add(modelGame);
+      _gameCache[modelGame.id] = modelGame;
     }
     return games;
   }
 
   Future<Map<String, dynamic>> getGameDetails({@required int id}) async {}
+
+  Future<Game> getGameById({@required int id}) async {
+    if (_gameCache[id] != null) return _gameCache[id];
+    http.Response response = await postRequest(
+        endpoint: Endpoint.games,
+        query: 'fields total_rating, name, genres;'
+            'where id = $id;');
+    List<dynamic> jsonGames = jsonDecode(response.body.toString());
+    for (Map<String, dynamic> game in jsonGames) {
+      List<String> genres = <String>[];
+      if (game['genres'] != null) {
+        List<dynamic> jsonGenres = game['genres'].toList();
+        for (int genreID in jsonGenres) {
+          genres.add(await getGenreName(id: genreID));
+        }
+      }
+      Game modelGame = Game.fromJson(game, genres);
+      _gameCache[modelGame.id] = modelGame;
+      return modelGame;
+    }
+    return null;
+  }
 
   Future<String> getGenreName({@required int id}) async {
     if (_genreNames[id] != null) return _genreNames[id];

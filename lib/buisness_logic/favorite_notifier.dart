@@ -9,7 +9,7 @@ class FavoriteNotifier with ChangeNotifier {
     _entries.addAll(data);
   }
 
-  get entries => Map.unmodifiable(_entries);
+  Map<int, FavoriteEntry> get entries => Map.unmodifiable(_entries);
 
   void add(FavoriteEntry data) {
     _entries[data.gameID] = data;
