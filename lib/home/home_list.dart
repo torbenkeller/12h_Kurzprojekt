@@ -13,17 +13,23 @@ class HomeList extends StatefulWidget {
 
 class _HomeListState extends State<HomeList> {
   ScrollController controller = ScrollController();
+  bool loadNew = false;
 
   @override
   void initState() {
     super.initState();
     controller.addListener(() async {
-      if (controller.position.pixels == controller.position.maxScrollExtent) {
+      if (controller.position.pixels <=
+              controller.position.maxScrollExtent - 400 &&
+          !loadNew &&
+          widget.data.length < 150) {
+        loadNew = true;
         List<Game> newGames = await GamesService.getInstance()
             .getGames(start: widget.data.length, length: 10);
         setState(() {
           widget.data.addAll(newGames);
         });
+        loadNew = false;
       }
     });
   }
@@ -66,7 +72,7 @@ class _HomeListState extends State<HomeList> {
                 : null,
           );
         },
-        itemCount: widget.data.length + 1,
+        itemCount: widget.data.length + ((widget.data.length < 150) ? 1 : 0),
       ),
     );
   }
