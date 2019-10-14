@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 
-class FavouriteEntry {
+class FavoriteEntry {
   DateTime _lastChangedDate;
   int _gameID;
-  FavouriteEntry({@required DateTime lastChangedDate, @required int gameID})
+  FavoriteEntry({@required DateTime lastChangedDate, @required int gameID})
       : this._lastChangedDate = lastChangedDate,
         this._gameID = gameID;
 
-  static FavouriteEntry fromJson(Map<String, dynamic> json) => FavouriteEntry(
+  static FavoriteEntry fromJson(Map<String, dynamic> json) => FavoriteEntry(
       gameID: json['gameID'],
       lastChangedDate: DateTime.parse(json['lastChangedDate']));
 

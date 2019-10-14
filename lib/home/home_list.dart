@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kurzprojekt/buisness_logic/favourite_entry.dart';
-import 'package:kurzprojekt/buisness_logic/favourite_notifier.dart';
+import 'package:kurzprojekt/buisness_logic/favorite_entry.dart';
+import 'package:kurzprojekt/buisness_logic/favorite_notifier.dart';
 import 'package:kurzprojekt/buisness_logic/game.dart';
 import 'package:kurzprojekt/services/games_service.dart';
 import 'package:provider/provider.dart';
@@ -58,8 +58,8 @@ class _HomeListState extends State<HomeList> {
                 child: CircularProgressIndicator(),
               ),
             );
-          return Consumer<FavouriteNotifier>(
-              builder: (BuildContext context, FavouriteNotifier favourites, _) {
+          return Consumer<FavoriteNotifier>(
+              builder: (BuildContext context, FavoriteNotifier favorites, _) {
             return ListTile(
               leading: CircleAvatar(
                 child: Text(
@@ -78,14 +78,14 @@ class _HomeListState extends State<HomeList> {
                       widget.data[index].genres.reduce((a, b) => a + ', ' + b))
                   : null,
               trailing: IconButton(
-                icon: Icon((favourites.entries[widget.data[index].id] != null)
+                icon: Icon((favorites.entries[widget.data[index].id] != null)
                     ? Icons.star
                     : Icons.star_border),
                 onPressed: () {
-                  if (favourites.entries[widget.data[index].id] != null) {
-                    favourites.remove(widget.data[index].id);
+                  if (favorites.entries[widget.data[index].id] != null) {
+                    favorites.remove(widget.data[index].id);
                   } else {
-                    favourites.add(FavouriteEntry(
+                    favorites.add(FavoriteEntry(
                         lastChangedDate: DateTime.now(),
                         gameID: widget.data[index].id));
                   }
