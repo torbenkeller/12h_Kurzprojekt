@@ -12,6 +12,22 @@ class HomeList extends StatefulWidget {
 }
 
 class _HomeListState extends State<HomeList> {
+  ScrollController controller = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(() async {
+      if (controller.position.pixels == controller.position.maxScrollExtent) {
+        List<Game> newGames = await GamesService.getInstance()
+            .getGames(start: widget.data.length, length: 10);
+        setState(() {
+          widget.data.addAll(newGames);
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -24,25 +40,40 @@ class _HomeListState extends State<HomeList> {
         });
       },
       child: ListView.builder(
-        itemBuilder: (BuildContext context, int index) => ListTile(
-          onTap: () => setState(() {}),
-          leading: CircleAvatar(
-            child: Text(
-              widget.data[index].totalRating.toInt().toString(),
+        controller: controller,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == widget.data.length)
+            return Container(
+              height: 60,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          return ListTile(
+            leading: CircleAvatar(
+              child: Text(
+                widget.data[index].totalRating.toInt().toString(),
+              ),
+              backgroundColor: Color.fromARGB(
+                  255,
+                  ((100 - widget.data[index].totalRating).abs() * 2.55).toInt(),
+                  ((widget.data[index].totalRating).abs() * 2.55).toInt(),
+                  0),
             ),
-            backgroundColor: Color.fromARGB(
-                255,
-                ((100 - widget.data[index].totalRating).abs() * 2.55).toInt(),
-                ((widget.data[index].totalRating).abs() * 2.55).toInt(),
-                0),
-          ),
-          title: Text(widget.data[index].name),
-          subtitle: (widget.data[index].genres.length > 0)
-              ? Text(widget.data[index].genres.reduce((a, b) => a + ', ' + b))
-              : null,
-        ),
-        itemCount: widget.data.length,
+            title: Text(widget.data[index].name),
+            subtitle: (widget.data[index].genres.length > 0)
+                ? Text(widget.data[index].genres.reduce((a, b) => a + ', ' + b))
+                : null,
+          );
+        },
+        itemCount: widget.data.length + 1,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
   }
 }
