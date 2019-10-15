@@ -6,6 +6,10 @@ class Game {
   String _name;
   double _totalRating;
   List<String> _genres;
+  String _websiteURL;
+  String _pictureURL;
+  String _story;
+  String _summary;
 
   Game(
       {@required int id,
@@ -23,9 +27,14 @@ class Game {
       totalRating: json['total_rating'] ?? -1,
       genres: genres ?? <String>[]);
 
-  Future<void> getDetails() async {
+  Future<Game> getDetails() async {
     Map<String, dynamic> response =
         await GamesService.getInstance().getGameDetails(id: _id);
+    this._pictureURL = 'https:' + response['cover'];
+    this._story = response['story'];
+    this._summary = response['summary'];
+    this._websiteURL = response['url'];
+    return this;
   }
 
   List<String> get genres => _genres;
@@ -35,6 +44,14 @@ class Game {
   double get totalRating => _totalRating;
 
   String get name => _name;
+
+  String get websiteURL => _websiteURL;
+
+  String get story => _story;
+
+  String get summary => _summary;
+
+  String get pictureURL => _pictureURL;
 
   @override
   String toString() {

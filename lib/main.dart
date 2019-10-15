@@ -12,25 +12,25 @@ main() => runApp(MainApp());
 class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Kurzprojekt',
-      home: FutureBuilder<Map<int, FavoriteEntry>>(
-          future: CacheService.getInstance().loadFavorites(),
-          builder: (BuildContext context,
-              AsyncSnapshot<Map<int, FavoriteEntry>> snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                return ChangeNotifierProvider.value(
-                  child: RootPage(),
-                  value: FavoriteNotifier(snapshot.data),
-                );
-              default:
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-            }
-          }),
-    );
+    return FutureBuilder<Map<int, FavoriteEntry>>(
+        future: CacheService.getInstance().loadFavorites(),
+        builder: (BuildContext context,
+            AsyncSnapshot<Map<int, FavoriteEntry>> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return ChangeNotifierProvider.value(
+                child: MaterialApp(
+                  title: 'Kurzprojekt',
+                  home: RootPage(),
+                ),
+                value: FavoriteNotifier(snapshot.data),
+              );
+            default:
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+          }
+        });
   }
 }
 

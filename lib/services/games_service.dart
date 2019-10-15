@@ -5,10 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:kurzprojekt/buisness_logic/game.dart';
 
-enum Endpoint {
-  games,
-  genres,
-}
+enum Endpoint { games, genres, covers }
 
 class GamesService {
   static const String API_KEY = 'ec34f09052b8317b6a56be2039b26193';
@@ -75,7 +72,19 @@ class GamesService {
     return games;
   }
 
-  Future<Map<String, dynamic>> getGameDetails({@required int id}) async {}
+  Future<Map<String, dynamic>> getGameDetails({@required int id}) async {
+    http.Response response = await postRequest(
+        endpoint: Endpoint.games,
+        query: 'fields storyline, summary, url, cover;'
+            'where id = $id;');
+    List<dynamic> jsonGames = jsonDecode(response.body.toString());
+    for (Map<String, dynamic> game in jsonGames) {
+      String coverURL = await getCoverURL(id: game['cover']);
+      game['cover'] = coverURL;
+      return game;
+    }
+    return null;
+  }
 
   Future<Game> getGameById({@required int id}) async {
     if (_gameCache[id] != null) return _gameCache[id];
@@ -106,6 +115,16 @@ class GamesService {
     List<dynamic> jsonGenre = jsonDecode(response.body);
     _genreNames[id] = jsonGenre[0]['name'];
     return jsonGenre[0]['name'];
+  }
+
+  Future<String> getCoverURL({@required int id}) async {
+    http.Response response = await postRequest(
+        endpoint: Endpoint.covers, query: 'fields url; where id = $id;');
+    List<dynamic> results = jsonDecode(response.body);
+    for (Map<String, dynamic> result in results) {
+      return result['url'];
+    }
+    return null;
   }
 }
 

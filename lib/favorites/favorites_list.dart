@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kurzprojekt/buisness_logic/favorite_entry.dart';
 import 'package:kurzprojekt/buisness_logic/favorite_notifier.dart';
 import 'package:kurzprojekt/buisness_logic/game.dart';
+import 'package:kurzprojekt/details/details_page.dart';
 import 'package:kurzprojekt/services/cache_service.dart';
 import 'package:kurzprojekt/services/games_service.dart';
 import 'package:provider/provider.dart';
@@ -74,6 +75,14 @@ class _FavoritesListState extends State<FavoritesList> {
           return Consumer<FavoriteNotifier>(
               builder: (BuildContext context, FavoriteNotifier favorites, _) {
             return ListTile(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (
+                    BuildContext context,
+                  ) =>
+                      GameDetailsPage(game: widget.games[index]),
+                ),
+              ),
               leading: CircleAvatar(
                 child: Text(
                   widget.games[index].totalRating.toInt().toString(),
